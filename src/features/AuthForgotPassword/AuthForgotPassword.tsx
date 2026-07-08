@@ -52,12 +52,16 @@ export function AuthForgotPassword() {
       >
         {/* Wordmark */}
         <div className="space-y-1 text-center">
-          <div className="flex items-center justify-center gap-2">
+          <Link
+            href="/"
+            aria-label="WauxAiStudio — home"
+            className="inline-flex items-center justify-center gap-2 rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          >
             <Logo size={32} />
             <span className="font-display text-lg font-semibold">
               WauxAiStudio
             </span>
-          </div>
+          </Link>
           <p className="text-sm text-muted-foreground">
             {view === "sent" ? "Check your email" : "Reset your password"}
           </p>

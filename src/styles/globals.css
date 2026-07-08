@@ -33,22 +33,22 @@
   --popover: #ffffff;
   --popover-foreground: #0f172a;
 
-  /* --- Accent (single indigo voice) ------------------------------------- */
-  --primary: #4f46e5; /* indigo-600 */
+  /* --- Accent (single black voice) -------------------------------------- */
+  --primary: #141414; /* near-black (matches logo badge) */
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9; /* slate-100 */
   --secondary-foreground: #0f172a;
   --muted: #f1f5f9;
   --muted-foreground: #64748b; /* slate-500 */
-  --accent: #eef2ff; /* indigo-50 hover wash */
-  --accent-foreground: #4338ca; /* indigo-700 */
+  --accent: #f1f5f9; /* neutral slate hover wash */
+  --accent-foreground: #141414; /* near-black */
   --destructive: #ef4444;
 
   /* --- Lines & focus ----------------------------------------------------- */
   /* Borders are a soft hairline tone, decoupled from text. */
   --border: #e2e8f0; /* slate-200 */
   --input: #e2e8f0;
-  --ring: #4f46e5; /* indigo focus */
+  --ring: #141414; /* black focus */
 
   /* --- Data viz (modern, harmonious) ------------------------------------ */
   --chart-1: #6366f1; /* indigo */
@@ -60,12 +60,12 @@
   /* --- Sidebar ----------------------------------------------------------- */
   --sidebar: #ffffff;
   --sidebar-foreground: #0f172a;
-  --sidebar-primary: #4f46e5;
+  --sidebar-primary: #141414;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eef2ff;
-  --sidebar-accent-foreground: #4338ca;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #141414;
   --sidebar-border: #e2e8f0;
-  --sidebar-ring: #4f46e5;
+  --sidebar-ring: #141414;
 
   /* --- Elevation primitives (soft, blurred — no hard offset) ------------ */
   --nb-border-width: 1px;
@@ -91,21 +91,22 @@
   --popover: #14171f;
   --popover-foreground: #e5e7eb;
 
-  /* --- Accent (single indigo voice) ------------------------------------- */
-  --primary: #6366f1; /* indigo-500 — bright on dark */
-  --primary-foreground: #ffffff;
+  /* --- Accent (single mono voice — inverted: black-on-dark = invisible, so
+     the dark-mode "black accent" reads as near-white with dark text) ------ */
+  --primary: #f4f4f5; /* zinc-100 — bright on dark */
+  --primary-foreground: #0b0d12; /* dark text on the white button */
   --secondary: #14171f;
   --secondary-foreground: #e5e7eb;
   --muted: #1c2030; /* top elevation step */
   --muted-foreground: #9aa3b5; /* muted slate */
-  --accent: #1e1b4b; /* deep indigo hover wash */
-  --accent-foreground: #c7d2fe; /* indigo-200 glow */
+  --accent: #1c2030; /* neutral hover wash */
+  --accent-foreground: #e5e7eb; /* zinc-200 glow */
   --destructive: #f87171;
 
   /* --- Lines & focus ----------------------------------------------------- */
   --border: #262b38; /* soft hairline */
   --input: #262b38;
-  --ring: #818cf8; /* indigo-400 focus */
+  --ring: #e5e7eb; /* light focus */
 
   --chart-1: #818cf8;
   --chart-2: #22d3ee;
@@ -115,12 +116,12 @@
 
   --sidebar: #0b0d12;
   --sidebar-foreground: #e5e7eb;
-  --sidebar-primary: #6366f1;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e1b4b;
-  --sidebar-accent-foreground: #c7d2fe;
+  --sidebar-primary: #f4f4f5;
+  --sidebar-primary-foreground: #0b0d12;
+  --sidebar-accent: #1c2030;
+  --sidebar-accent-foreground: #e5e7eb;
   --sidebar-border: #262b38;
-  --sidebar-ring: #818cf8;
+  --sidebar-ring: #e5e7eb;
 
   /* Deeper, softer elevation on the dark ground. */
   --nb-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);

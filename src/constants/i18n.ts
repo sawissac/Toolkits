@@ -16,6 +16,7 @@ import type { AppLocale } from "@/stores/slices/appConfigSlice";
 const en = {
   // Topbar
   "topbar.tools": "tools",
+  "topbar.home": "Home",
   "topbar.save": "Save",
   "topbar.saving": "Saving…",
   "topbar.saved": "Saved",
@@ -1152,6 +1153,7 @@ export type MessageKey = keyof typeof en;
 /** Burmese (my) translations — must cover every {@link MessageKey}. */
 const my: Record<MessageKey, string> = {
   "topbar.tools": "ကိရိယာများ",
+  "topbar.home": "ပင်မစာမျက်နှာ",
   "topbar.save": "သိမ်းမည်",
   "topbar.saving": "သိမ်းနေသည်…",
   "topbar.saved": "သိမ်းပြီး",

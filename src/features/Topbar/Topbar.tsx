@@ -52,10 +52,14 @@ export function Topbar({
 
   return (
     <div className="flex items-center gap-2 border-b-2 border-foreground bg-card px-4 py-2.5">
-      <div className="flex items-center gap-2 text-sm font-bold">
+      <Link
+        href="/"
+        aria-label={t("topbar.home")}
+        className="flex items-center gap-2 rounded-md text-sm font-bold transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+      >
         <Logo size={24} />
         WauxAiStudio
-      </div>
+      </Link>
       {toolName && (
         <span className="truncate text-sm text-muted-foreground">
           ·&nbsp; <b className="font-bold text-foreground">{toolName}</b>

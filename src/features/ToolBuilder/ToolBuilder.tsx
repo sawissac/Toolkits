@@ -7,6 +7,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 
+import { AppSwitcherRail } from "@/components/customs/AppSwitcherRail";
 import {
   ResizableGroup,
   ResizableHandle,
@@ -66,108 +67,111 @@ export function ToolBuilder() {
   } = useBuilderUrlState();
 
   return (
-    <div className="flex flex-col bg-background text-foreground h-dvh w-dvw">
-      <Topbar
-        toolName={tool?.name ?? null}
-        toolCount={tools.length}
-        onSave={saveTools}
-        saveState={saveState}
-      />
+    <div className="flex bg-background text-foreground h-dvh w-dvw">
+      <AppSwitcherRail />
+      <div className="flex flex-1 min-w-0 flex-col">
+        <Topbar
+          toolName={tool?.name ?? null}
+          toolCount={tools.length}
+          onSave={saveTools}
+          saveState={saveState}
+        />
 
-      <div className="flex min-h-0 flex-1">
-        {leftHidden && (
-          <CollapsedRail
-            side="left"
-            icon={PanelLeftOpen}
-            label={t("tools.title")}
-            onExpand={() => setLeftHidden(false)}
-          />
-        )}
-
-        <ResizableGroup className="min-h-0 flex-1 flex">
-          {!leftHidden && (
-            <>
-              <ResizablePanel
-                id="tools"
-                defaultSize="350px"
-                minSize="240px"
-                maxSize="480px"
-                className="min-h-0"
-              >
-                <aside className="h-full min-h-0">
-                  {isLoading ? (
-                    <ToolsSkeleton />
-                  ) : (
-                    <ToolsPanel onHide={() => setLeftHidden(true)} />
-                  )}
-                </aside>
-              </ResizablePanel>
-              <ResizableHandle />
-            </>
+        <div className="flex min-h-0 flex-1">
+          {leftHidden && (
+            <CollapsedRail
+              side="left"
+              icon={PanelLeftOpen}
+              label={t("tools.title")}
+              onExpand={() => setLeftHidden(false)}
+            />
           )}
 
-          <ResizablePanel
-            id="builder"
-            minSize="320px"
-            className="min-h-0 min-w-0"
-          >
-            <main className="h-full min-h-0 min-w-0">
-              {isLoading ? (
-                <BuilderSkeleton />
-              ) : tool ? (
-                <BuilderPanel
-                  tool={tool}
-                  view={view}
-                  onViewChange={handleViewChange}
-                />
-              ) : (
-                <EmptyState
-                  icon={MousePointerClick}
-                  label="Select or create a tool to start building."
-                />
-              )}
-            </main>
-          </ResizablePanel>
+          <ResizableGroup className="min-h-0 flex-1 flex">
+            {!leftHidden && (
+              <>
+                <ResizablePanel
+                  id="tools"
+                  defaultSize="350px"
+                  minSize="240px"
+                  maxSize="480px"
+                  className="min-h-0"
+                >
+                  <aside className="h-full min-h-0">
+                    {isLoading ? (
+                      <ToolsSkeleton />
+                    ) : (
+                      <ToolsPanel onHide={() => setLeftHidden(true)} />
+                    )}
+                  </aside>
+                </ResizablePanel>
+                <ResizableHandle />
+              </>
+            )}
 
-          {!rightHidden && (
-            <>
-              <ResizableHandle />
-              <ResizablePanel
-                id="inspector"
-                defaultSize="400px"
-                minSize="300px"
-                maxSize="60%"
-                className="min-h-0"
-              >
-                <aside className="h-full min-h-0">
-                  {isLoading ? (
-                    <PaletteSkeleton />
-                  ) : showEditorInPanel && selectedNode ? (
-                    <div className="h-full overflow-auto p-4">
-                      <NodeEditor node={selectedNode} />
-                    </div>
-                  ) : tool ? (
-                    <PalettePanel onHide={() => setRightHidden(true)} />
-                  ) : (
-                    <EmptyState
-                      icon={SlidersHorizontal}
-                      label="Inputs appear here once a tool is open."
-                    />
-                  )}
-                </aside>
-              </ResizablePanel>
-            </>
+            <ResizablePanel
+              id="builder"
+              minSize="320px"
+              className="min-h-0 min-w-0"
+            >
+              <main className="h-full min-h-0 min-w-0">
+                {isLoading ? (
+                  <BuilderSkeleton />
+                ) : tool ? (
+                  <BuilderPanel
+                    tool={tool}
+                    view={view}
+                    onViewChange={handleViewChange}
+                  />
+                ) : (
+                  <EmptyState
+                    icon={MousePointerClick}
+                    label="Select or create a tool to start building."
+                  />
+                )}
+              </main>
+            </ResizablePanel>
+
+            {!rightHidden && (
+              <>
+                <ResizableHandle />
+                <ResizablePanel
+                  id="inspector"
+                  defaultSize="400px"
+                  minSize="300px"
+                  maxSize="60%"
+                  className="min-h-0"
+                >
+                  <aside className="h-full min-h-0">
+                    {isLoading ? (
+                      <PaletteSkeleton />
+                    ) : showEditorInPanel && selectedNode ? (
+                      <div className="h-full overflow-auto p-4">
+                        <NodeEditor node={selectedNode} />
+                      </div>
+                    ) : tool ? (
+                      <PalettePanel onHide={() => setRightHidden(true)} />
+                    ) : (
+                      <EmptyState
+                        icon={SlidersHorizontal}
+                        label="Inputs appear here once a tool is open."
+                      />
+                    )}
+                  </aside>
+                </ResizablePanel>
+              </>
+            )}
+          </ResizableGroup>
+
+          {rightHidden && (
+            <CollapsedRail
+              side="right"
+              icon={PanelRightOpen}
+              label={t("palette.title")}
+              onExpand={() => setRightHidden(false)}
+            />
           )}
-        </ResizableGroup>
-
-        {rightHidden && (
-          <CollapsedRail
-            side="right"
-            icon={PanelRightOpen}
-            label={t("palette.title")}
-            onExpand={() => setRightHidden(false)}
-          />
-        )}
+        </div>
       </div>
     </div>
   );

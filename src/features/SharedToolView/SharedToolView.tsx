@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, Eye, EyeOff, KeyRound } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import {
@@ -93,7 +94,13 @@ export function SharedToolView({ toolId }: { toolId: string }) {
   return (
     <div className="flex min-h-dvh flex-col bg-background">
       <header className="flex h-12 shrink-0 items-center gap-2 border-b-2 border-foreground bg-card px-4">
-        <Logo size={24} title="WauxAiStudio" className="shrink-0" />
+        <Link
+          href="/"
+          aria-label="WauxAiStudio — home"
+          className="shrink-0 rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+        >
+          <Logo size={24} title="WauxAiStudio" />
+        </Link>
         <span className="flex-1 truncate text-sm font-bold">
           {isLoading ? (
             <Skeleton className="inline-block h-4 w-32 border-0" />

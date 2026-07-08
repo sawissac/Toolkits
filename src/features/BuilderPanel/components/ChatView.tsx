@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Copy,
   Download,
+  ListTodo,
   Loader2,
   Plus,
   SendHorizontal,
@@ -13,9 +14,11 @@ import {
   Square,
   Upload,
   Wand2,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { PlannerQuickAdd } from "@/components/customs/PlannerQuickAdd";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/ui/markdown";
 import { ModelCombobox } from "@/components/ui/model-combobox";
@@ -48,6 +51,7 @@ import {
   type PlanProposal,
   validateTool,
 } from "@/lib/chat-context";
+import { type PlannerReference } from "@/lib/planner-bridge";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/stores/hooks";
 import type {
@@ -312,6 +316,10 @@ export function ChatView({
   const [messages, setMessages] = useState<ChatItem[]>([]);
   const [input, setInput] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
+  // Planner tasks picked via PlannerQuickAdd — shown as removable chips above
+  // the composer, not dumped into the draft text. Their content is folded
+  // into the outgoing message only when the user actually sends.
+  const [plannerRefs, setPlannerRefs] = useState<PlannerReference[]>([]);
   // Provider + model are a global per-user preference (persisted on profiles).
   const { provider, model: savedModel, save: savePref } = useChatModelPref();
   const model = savedModel ?? DEFAULT_MODELS[provider];
@@ -485,15 +493,30 @@ export function ChatView({
 
   /** Append the user's message and request a reply. No-ops while blank/sending. */
   function send(raw: string) {
-    const text = raw.trim();
-    if (!text || sending) {
+    const trimmed = raw.trim();
+    if (!trimmed || sending) {
       return;
     }
     setInput("");
     resetComposerHeight();
+    // Fold any referenced Planner tasks into the outgoing message (not the
+    // draft textarea — those only ever showed as chips above the composer).
+    // The affirmative check below runs against the plain typed text so an
+    // attached reference can't accidentally break "yes"/"looks good" replies.
+    const refBlock = plannerRefs.length
+      ? "\n\n" +
+        plannerRefs
+          .map(
+            (r) =>
+              `[Planner: "${r.title}" (${r.fileName})]${r.thought ? `\n${r.thought}` : " — no notes"}`,
+          )
+          .join("\n\n")
+      : "";
+    const text = trimmed + refBlock;
+    setPlannerRefs([]);
     // A pending plan is approved by an affirmative chat reply: keep the SAME
     // plan on screen and build it.
-    if (pendingPlan && isAffirmative(text)) {
+    if (pendingPlan && isAffirmative(trimmed)) {
       startBuild(pendingPlan, text);
       return;
     }
@@ -706,19 +729,32 @@ export function ChatView({
     role === "user" ? t("chat.you") : t("chat.assistant");
 
   /**
-   * Serialize the visible transcript to Markdown and trigger a client-side
-   * download. Hidden control messages (confirm/cancel/self-fix) are excluded so
-   * the file mirrors exactly what the user sees in the chat. The same format is
-   * read back by {@link importChat}.
+   * Serialize the visible transcript to Markdown. Hidden control messages
+   * (confirm/cancel/self-fix) are excluded so it mirrors exactly what the
+   * user sees in the chat. Returns `null` when there's nothing to save yet.
+   * Shared by {@link exportChat} (file download) and the "save this
+   * conversation" checkbox in {@link PlannerQuickAdd} (Planner task notes).
    */
-  function exportChat() {
+  const buildTranscriptMarkdown = useCallback((): string | null => {
     const visible = messages.filter((m) => !m.hidden);
     if (visible.length === 0) {
+      return null;
+    }
+    return (
+      `# ${t("chat.greeting")}\n\n` +
+      visible.map((m) => `## ${roleHeading(m.role)}\n\n${m.text}`).join("\n\n")
+    );
+  }, [messages, roleHeading, t]);
+
+  /**
+   * Trigger a client-side download of {@link buildTranscriptMarkdown}. The
+   * same format is read back by {@link importChat}.
+   */
+  function exportChat() {
+    const md = buildTranscriptMarkdown();
+    if (!md) {
       return;
     }
-    const md =
-      `# ${t("chat.greeting")}\n\n` +
-      visible.map((m) => `## ${roleHeading(m.role)}\n\n${m.text}`).join("\n\n");
     const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
     downloadText(`chat-${ts}.md`, md);
   }
@@ -754,6 +790,34 @@ export function ChatView({
   }
 
   /** Load a chat from a Markdown file the user picks, replacing the transcript. */
+  /**
+   * Reset any in-flight build/plan state and replace the transcript with
+   * `parsed`. Shared by the file-based {@link importChat} and importing a
+   * conversation saved on a Planner task (`PlannerQuickAdd`).
+   */
+  function loadTranscript(parsed: ChatItem[]) {
+    abortRef.current?.abort();
+    setSending(false);
+    setPendingPlan(null);
+    pendingSpecRef.current = null;
+    confirmedPlanRef.current = null;
+    selfFixCountRef.current = 0;
+    setBuildPlan(null);
+    setBuildPhase(null);
+    setError(null);
+    setMessages(parsed);
+  }
+
+  /** Parse a Planner task's saved conversation and load it, replacing the current chat. */
+  function importFromPlanner(markdown: string) {
+    const parsed = parseChatMarkdown(markdown);
+    if (parsed.length === 0) {
+      setError(t("chat.import.error"));
+      return;
+    }
+    loadTranscript(parsed);
+  }
+
   async function importChat(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = ""; // allow re-importing the same file later
@@ -766,17 +830,7 @@ export function ChatView({
         setError(t("chat.import.error"));
         return;
       }
-      // Reset any in-flight build/plan state, then load the imported turns.
-      abortRef.current?.abort();
-      setSending(false);
-      setPendingPlan(null);
-      pendingSpecRef.current = null;
-      confirmedPlanRef.current = null;
-      selfFixCountRef.current = 0;
-      setBuildPlan(null);
-      setBuildPhase(null);
-      setError(null);
-      setMessages(parsed);
+      loadTranscript(parsed);
     } catch {
       setError(t("chat.import.error"));
     }
@@ -935,55 +989,93 @@ export function ChatView({
               )}
             </div>
           )}
-          <div className="flex items-center gap-2 border-2 border-foreground bg-card p-2 shadow-nb focus-within:ring-2 focus-within:ring-ring/50">
-            <div className="relative flex-1">
-              {!input.trim() && (
-                <AnimatedPlaceholder t={t} animate={!inputFocused} />
-              )}
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
-                onKeyDown={handleKeyDown}
-                rows={1}
-                aria-label={t("chat.placeholder")}
-                className="field-sizing-content max-h-40 min-h-9 w-full resize-none content-center bg-transparent px-1.5 py-1.5 pb-0 text-sm leading-5 outline-none"
-              />
-            </div>
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              onClick={enhance}
-              disabled={!input.trim() || sending || enhancing}
-              title={t("chat.enhance.title")}
-              aria-label={enhancing ? t("chat.enhancing") : t("chat.enhance")}
-            >
-              {enhancing ? <Loader2 className="animate-spin" /> : <Wand2 />}
-            </Button>
-            {sending ? (
-              <Button
-                type="button"
-                size="icon"
-                variant="destructive"
-                onClick={stop}
-                aria-label={t("chat.stop")}
-              >
-                <Square className="fill-current" />
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                size="icon"
-                onClick={() => send(input)}
-                disabled={!input.trim()}
-                aria-label={t("chat.send")}
-              >
-                <SendHorizontal />
-              </Button>
+          <div className="flex flex-col gap-2 border-2 border-foreground bg-card p-2 shadow-nb focus-within:ring-2 focus-within:ring-ring/50">
+            {plannerRefs.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {plannerRefs.map((ref) => (
+                  <span
+                    key={ref.todoId}
+                    className="inline-flex max-w-56 items-center gap-1.5 border-2 border-foreground bg-accent px-2 py-1 text-xs font-bold text-accent-foreground shadow-nb-sm"
+                  >
+                    <ListTodo className="size-3 shrink-0" />
+                    <span className="truncate">{ref.title}</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPlannerRefs((prev) =>
+                          prev.filter((r) => r.todoId !== ref.todoId),
+                        )
+                      }
+                      aria-label={`Remove reference: ${ref.title}`}
+                      className="shrink-0 rounded-sm hover:opacity-70"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
             )}
+            <div className="flex items-center gap-2">
+              <PlannerQuickAdd
+                onReference={(ref) =>
+                  setPlannerRefs((prev) =>
+                    prev.some((r) => r.todoId === ref.todoId)
+                      ? prev
+                      : [...prev, ref],
+                  )
+                }
+                getTranscript={buildTranscriptMarkdown}
+                onImport={importFromPlanner}
+              />
+              <div className="relative flex-1">
+                {!input.trim() && (
+                  <AnimatedPlaceholder t={t} animate={!inputFocused} />
+                )}
+                <textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onFocus={() => setInputFocused(true)}
+                  onBlur={() => setInputFocused(false)}
+                  onKeyDown={handleKeyDown}
+                  rows={1}
+                  aria-label={t("chat.placeholder")}
+                  className="field-sizing-content max-h-40 min-h-9 w-full resize-none content-center bg-transparent px-1.5 py-1.5 pb-0 text-sm leading-5 outline-none"
+                />
+              </div>
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                onClick={enhance}
+                disabled={!input.trim() || sending || enhancing}
+                title={t("chat.enhance.title")}
+                aria-label={enhancing ? t("chat.enhancing") : t("chat.enhance")}
+              >
+                {enhancing ? <Loader2 className="animate-spin" /> : <Wand2 />}
+              </Button>
+              {sending ? (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="destructive"
+                  onClick={stop}
+                  aria-label={t("chat.stop")}
+                >
+                  <Square className="fill-current" />
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="icon"
+                  onClick={() => send(input)}
+                  disabled={!input.trim()}
+                  aria-label={t("chat.send")}
+                >
+                  <SendHorizontal />
+                </Button>
+              )}
+            </div>
           </div>
           <p className="mt-1.5 px-1 text-[11px] text-muted-foreground">
             {t("chat.hint")}

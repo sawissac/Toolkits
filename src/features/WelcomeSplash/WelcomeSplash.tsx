@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { CSSProperties } from "react";
 import { useCallback, useRef } from "react";
@@ -40,11 +41,17 @@ export function WelcomeSplash() {
       <BackgroundDecor />
 
       {/* Wordmark — top-left. */}
-      <header className="relative z-10 flex items-center gap-2 p-6">
-        <Logo size={32} />
-        <span className="font-display text-lg font-semibold text-foreground">
-          WauxAiStudio
-        </span>
+      <header className="relative z-10 flex items-center p-6">
+        <Link
+          href="/"
+          aria-label={t("topbar.home")}
+          className="flex items-center gap-2 rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+        >
+          <Logo size={32} />
+          <span className="font-display text-lg font-semibold text-foreground">
+            WauxAiStudio
+          </span>
+        </Link>
       </header>
 
       {/* Hero. */}

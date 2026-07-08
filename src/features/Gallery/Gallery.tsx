@@ -142,10 +142,14 @@ export function Gallery() {
             <span className="hidden sm:inline">{t("gallery.back")}</span>
           </Link>
         </Button>
-        <div className="flex items-center gap-2 text-sm font-bold">
+        <Link
+          href="/"
+          aria-label={t("topbar.home")}
+          className="flex items-center gap-2 rounded-md text-sm font-bold transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+        >
           <Logo size={22} />
           {t("gallery.title")}
-        </div>
+        </Link>
 
         <div className="ml-auto flex items-center gap-2">
           <Button

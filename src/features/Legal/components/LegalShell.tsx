@@ -74,10 +74,14 @@ function LegalFooter() {
   return (
     <footer className="border-t border-border bg-card">
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
-        <div className="flex items-center gap-2">
+        <Link
+          href="/"
+          aria-label="WauxAiStudio — home"
+          className="flex items-center gap-2 rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+        >
           <Logo size={20} />
           <span className="font-display text-sm font-bold">WauxAiStudio</span>
-        </div>
+        </Link>
         <nav className="flex items-center gap-4 text-sm text-muted-foreground">
           <Link href="/privacy" className="hover:text-foreground">
             Privacy Policy

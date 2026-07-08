@@ -1,8 +1,10 @@
 "use client";
 
-import { ArrowLeft, BookText } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/ui/logo";
 import { useTranslation } from "@/hooks/useTranslation";
 
 /**
@@ -18,18 +20,20 @@ export function DocsShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-background">
-      <header className="sticky top-0 z-10 flex h-12 items-center justify-between border-b-2 border-foreground bg-background px-4">
-        <div className="flex items-center gap-2 font-semibold">
-          <BookText size={16} />
-          <span className="font-poppins">WauxAiStudio</span>
-          <span className="text-muted-foreground">/ {t("docs.title")}</span>
-        </div>
+      <header className="sticky top-0 z-10 flex h-12 items-center gap-2 border-b-2 border-foreground bg-background px-4">
+        <Button asChild variant="ghost" size="sm" className="h-7 gap-1.5 px-2">
+          <Link href="/studio" aria-label={t("docs.backToStudio")}>
+            <ArrowLeft className="size-4" />
+            <span className="hidden sm:inline">{t("docs.backToStudio")}</span>
+          </Link>
+        </Button>
         <Link
-          href="/studio"
-          className="nb-press flex items-center gap-1.5 border-2 border-foreground bg-card px-2.5 py-1 text-sm font-semibold shadow-nb-sm"
+          href="/"
+          aria-label={t("topbar.home")}
+          className="flex items-center gap-2 rounded-md font-semibold transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         >
-          <ArrowLeft size={14} />
-          {t("docs.backToStudio")}
+          <Logo size={22} />
+          <span className="font-poppins">{t("docs.title")}</span>
         </Link>
       </header>
 

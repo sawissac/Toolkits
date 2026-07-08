@@ -395,7 +395,7 @@ function CtaBand() {
   return (
     <section className="border-b border-border">
       <div className="w-full px-6 py-20 sm:px-10 lg:px-16">
-        <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-linear-to-br from-primary to-violet-600 px-8 py-16 text-center text-primary-foreground shadow-nb-lg">
+        <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-linear-to-br from-neutral-950 to-neutral-800 px-8 py-16 text-center text-white shadow-nb-lg">
           {/* faint dotted grid texture */}
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.12]"
@@ -410,7 +410,7 @@ function CtaBand() {
             mono
             size={420}
             aria-hidden
-            className="pointer-events-none absolute -right-16 -bottom-24 rotate-12 text-white opacity-[0.1]"
+            className="pointer-events-none absolute right-6 -bottom-24  text-white opacity-[0.1]"
           />
 
           <div className="relative z-10 flex flex-col items-center gap-6">
@@ -423,14 +423,14 @@ function CtaBand() {
             <h2 className="font-display text-3xl font-bold sm:text-4xl">
               Build your first tool in minutes.
             </h2>
-            <p className="max-w-xl text-primary-foreground/90">
+            <p className="max-w-xl text-white/90">
               Open the studio and start chaining nodes. No install, no setup.
             </p>
             <Button
               asChild
               size="lg"
               variant="secondary"
-              className="h-12 px-7 text-base"
+              className="h-12 border-white bg-white px-7 text-base text-neutral-900 hover:bg-white/90"
             >
               <Link href="/studio">
                 Open the studio
@@ -450,10 +450,14 @@ function SiteFooter() {
   return (
     <footer className="bg-card">
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
-        <div className="flex items-center gap-2">
+        <Link
+          href="/"
+          aria-label="WauxAiStudio — home"
+          className="flex items-center gap-2 rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+        >
           <Logo size={22} />
           <span className="font-display text-sm font-bold">WauxAiStudio</span>
-        </div>
+        </Link>
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
           <Link
             href="/privacy"

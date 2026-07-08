@@ -43,7 +43,13 @@ export function PublicGallery({ handle }: { handle: string }) {
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <header className="flex h-12 shrink-0 items-center gap-2 border-b-2 border-foreground bg-card px-4">
-        <Logo size={24} title="WauxAiStudio" className="shrink-0" />
+        <Link
+          href="/"
+          aria-label={t("topbar.home")}
+          className="shrink-0 rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+        >
+          <Logo size={24} title="WauxAiStudio" />
+        </Link>
         <span className="flex-1 truncate text-sm font-bold">
           {isLoading ? (
             <Skeleton className="inline-block h-4 w-40 border-0" />
